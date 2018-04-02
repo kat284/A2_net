@@ -21,15 +21,6 @@
 #~~[Preprocessor Directives]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #!/usr/bin/env python3
 
-import socket
-import sys
-from clientKeys import *
-import pickle
-import tweepy
-import os
-
-from cryptography.fernet import Fernet
-import hashlib
 
 #~~[Preprocessor Directives]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #      .--.      .'-.      .--.      .--.      .--.      .-'.      .--. #
@@ -37,18 +28,14 @@ import hashlib
 # `--'      `-.'      `--'      `--'      `--'      `--'      `.-'      #
 #~~[Variables]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-SERVER_IP = 'localhost'
-SERVER_PORT = 5000
-SOCKET_SIZE = 1024
-HASHTAG = ''
-SERVER = None
+
 
 #~~[Variables]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #      .--.      .'-.      .--.      .--.      .--.      .-'.      .--. #
 #::::'/::::::::'/::::::::'/::::::::'/::::::::'/::::::::'/::::::::'/:::::#
 # `--'      `-.'      `--'      `--'      `--'      `--'      `.-'      #
 #~~[Core]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
+"""
 def stream():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -128,14 +115,42 @@ def loadOptions(argv):
     else:
         return 1
     return 0
+"""
+
+from bluetooth import *
 
 if __name__ == '__main__':
+	
+
+	services=find_service(name="helloService", 
+                            uuid=SERIAL_PORT_CLASS)
+
+	for i in range(len(services)):
+		match=services[i]
+		if(match["name"]=="helloService"):
+			port=match["port"]
+			name=match["name"]
+			host=match["host"]
+
+			print (name, port, host)
+
+			client_socket=BluetoothSocket( RFCOMM )
+
+			client_socket.connect((host, port))
+
+			client_socket.send("Hello world")
+
+			client_socket.close()
+
+			break
+	"""
     if loadOptions(sys.argv):
         print('[ERROR] Arguments missing or are incorrect')
         print('[ERROR] Client CLOSING')
         sys.exit(1)
     print('[Checkpoint] Listening for Tweets that contain: ', HASHTAG)
     stream()
+    """
 
 #~~[Core]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #      .--.      .'-.      .--.      .--.      .--.      .-'.      .--. #

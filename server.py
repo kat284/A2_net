@@ -20,25 +20,27 @@
 # `--'      `-.'      `--'      `--'      `--'      `--'      `.-'      #
 #~~[Preprocessor Directives]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # !/usr/bin/env python3
-
+"""
 import socket
 import sys
 import pickle
 import os
 from cryptography.fernet import Fernet
-import
 import hashlib
-
-#Server Command:
-
+"""
+from rmq_params import *
+from menu import *
+import bluetooth
+from bluetooth import *
+import pika
 #~~[Preprocessor Directives]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #      .--.      .'-.      .--.      .--.      .--.      .-'.      .--. #
 #::::'/::::::::'/::::::::'/::::::::'/::::::::'/::::::::'/::::::::'/:::::#
 # `--'      `-.'      `--'      `--'      `--'      `--'      `.-'      #
 #~~[Variables]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-SERVER_IP = '0.0.0.0'
-SERVER_PORT = 5000
+RMQ_IP = '0.0.0.0'
+RFCOMM_CHANNEL = 1
 SOCKET_SIZE = 1024
 BACKLOG_SIZE= 5
 SERVER = None
@@ -53,33 +55,65 @@ def loadOptions(argv):
     global SERVER_PORT
     global SOCKET_SIZE
     global BACKLOG_SIZE
-    options = {}
-    while argv:
-        if argv[0][0] == '-':
-            options[argv[0]] = argv[1]
-        argv = argv[1:]
-    if (len(options) == 3) and ('-p' in options) and ('-b' in options) and ('-z' in options):
-        SERVER_PORT = options['-p']
-        BACKLOG_SIZE = options['-b']
-        SOCKET_SIZE = options['-z']
-    else:
-        return 1
-    return 0
+
 
 if __name__ == '__main__':
 
-    # Create a new server socket using RFCOMM protocol
-    server_sock = BluetoothSocket(RFCOMM)
-    # Bind to any port
-    server_sock.bind(("", PORT_ANY))
-    # Start listening
-    server_sock.listen(1)
+	order_id = 0
+	
+	credentials = pika.Plaincredentials(rmq_params.get("username"),rmq_params.get("password"))
+	parameters = pika.ConnectionParameters(host=RMQ_IP,virtual_host=rmq_params.get("vhost"),credentials=credentials)
+	connection = pika.BlockingConnection(parameters)
+	channel = connection.channel()
+	print("[Checkpoint] Connected to vhost ", rmq_params.get("vhost") ," on RMQ server at ", RMQ_IP," as user ",rmq_params.get("username"))
+	print("[Checkpoint] Setting up exchanges and queues...")
+	channel.exchange_declare(rmq_params.get("exchange"), exchange_type='direct')
+	channel.queue_declare(rmq_params.get("order_queue"), auto_delete=True)
+	channel.queue_declare(rmq_params.get("led_queue"), auto_delete=True)
+	#channel.queue_bind(exchange=rmq_params.get("exchange"),queue=rmq_params.get("order_queue"),routing_key="")
+	#channel.queue_bind(exchange=rmq_params.get("exchange"),queue=rmq_params.get("led_queue"),routing_key="")	
+	
+	
+	server_sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+	server_sock.bind(("",RFCOMM_CHANNEL))
+	server_sock.listen(1)
+	bluetooth.advertise_service(server_sock, "SampleServer",
+                     service_classes=[bluetooth.SERIAL_PORT_CLASS],
+                     profiles=[bluetooth.SERIAL_PORT_PROFILE])
+	print("[Checkpoint] Bluetooth ready!")
+	print("[Checkpoint] Waiting for connection on RFCOMM channel ",RFCOMM_CHANNEL)
+	while(1)
+		client_sock, address = server_sock.accept()
+		print("[Checkpoint] Accepted connection from ",address)
+			channel.basic_publish(exchange='',routing_key='hello',body='Hello World!')
+		#SEND UPDATE TO LED QUEUE
+		client_socket.sent(menu)
+		print("[Checkpoint] Sent menu: ",menu)
+		order = client_sock.recv(1024)
+		print("[Checkpoint] Received order: ",items)
+		order_id = order_id + 1
+		total_price = 0
+		total_price = 0
+		for item in items
+			info = menu.get(item)
+			total_price = total_price + info.get("price")
+			total_time = total_time + minfo.get("time")
+		receipt = "Order ID: " + str(order_id) + "\nItems: " + str(items) 
+								+ "\nTotal Price: " + str(total_price) 
+								+ "\nTotal Time: " + str(total_time)
+		client_socket.sent(receipt)
+		#SEND TO PROCESSOR QUEUE
+		print("[Checkpoint] Sent receipt: ",receipt)
+		#CREATE ANOTHER QUEUE NAME IS ORDER ID
+		submit_msg = "Order Update: Your order has been submitted"
+		#SEND SUBMIT MESSAGE TO NEW QUEUE
+		client_sock.close()
+		#SEND UPDATE TO LED QUEUE
+		print("[Checkpoint] Closed Bluetooth Conection")
+	server_sock.close()
+	connection.close()
 
-
-
-
-
-
+"""
     if loadOptions(sys.argv):
         print('[ERROR] Arguments missing or are incorrect')
         print('[ERROR] Server CLOSING')
@@ -133,7 +167,7 @@ if __name__ == '__main__':
         else:
             print('[ERROR] Unknown packet received')
         client.close()
-
+"""
 #~~[Core]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #      .--.      .'-.      .--.      .--.      .--.      .-'.      .--. #
 #::::'/::::::::'/::::::::'/::::::::'/::::::::'/::::::::'/::::::::'/:::::#
