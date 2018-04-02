@@ -1,0 +1,107 @@
+Note: All output is a result of the entire system working as a whole.
+
+Server Command:
+
+	python3 server.py
+
+LED Command:
+
+	python3 led.py -s 192.168.1.14 -m 11 -r 25 -g 24 -b 23
+
+Processor Command:
+
+	python3 processor.py -s 192.168.1.14
+
+Client Command:
+
+	python3 client.py -s 192.168.1.14 -b B8:27:EB:CB:FA:2C
+
+Server Output:
+
+	[Checkpoint] Connected to vhost 'ece4564val' on RMQ server at 'localhost' as user 'user'
+	[Checkpoint] Setting up exchanges and queues...
+	[Checkpoint] Bluetooth ready!
+	[Checkpoint] Waiting for connection on RFCOMM channel 1
+	[Checkpoint] Accepted connection from ('B8:27:EB:80:14:26', 1)
+	[Checkpoint] Sent menu:
+	item2:
+		time: 6
+		price: 2.25
+		
+	item4:
+		time: 2
+		price: 4.5
+		
+	item1:
+		time: 4
+		price: 1.5
+		
+	item3:
+		time: 10
+		price: 3.0
+		
+
+	[Checkpoint] Received order:
+	['item3', 'item3', 'item4', 'item5', 'item1']
+	[Checkpoint] Sent receipt:
+	Order ID: 564
+	Items: ['item3', 'item3', 'item4', 'item1']
+	Total Price: 12.0
+	Total Time: 26
+	[Checkpoint] Closed Bluetooth Connection.
+	[Checkpoint] Waiting for connection on RFCOMM channel 1
+
+LED Output:
+
+	[Checkpoint] Connected to vhost 'ece4564val' on RMQ server at '192.168.1.14' as user 'user'
+	[Checkpoint] Consuming from RMQ queue: led-Q
+	[Checkpoint] Flashing LED to blue
+	[Checkpoint] Flashing LED to red
+	[Checkpoint] Flashing LED to purple
+	[Checkpoint] Flashing LED to yellow
+	[Checkpoint] Flashing LED to green
+
+Processor Output:
+
+	[Checkpoint] Connected to vhost 'ece4564val' on RMQ server at '192.168.1.14' as user 'user'
+	[Checkpoint] Consuming from RMQ queue: order-Q
+	[Checkpoint] Starting order: 564
+	[Checkpoint] Completed order: 564
+
+Client Output:
+
+	[Checkpoint] Connecting to 'SampleServer' on 'B8:27:EB:CB:FA:2C'
+	[Checkpoint] Connected
+	[Checkpoint] Received menu:
+	item3:
+		price: 3.0
+		time: 10
+		
+	item2:
+		price: 2.25
+		time: 6
+		
+	item4:
+		price: 4.5
+		time: 2
+		
+	item1:
+		price: 1.5
+		time: 4
+		
+
+	Enter items separated by space characters:
+	item3 item3 item4 item5 item1
+	[Checkpoint] Sent order:
+	['item3', 'item3', 'item4', 'item5', 'item1']
+	[Checkpoint] Received receipt:
+	Order ID: 564
+	Items: ['item3', 'item3', 'item4', 'item1']
+	Total Price: 12.0
+	Total Time: 26
+	[Checkpoint] Closed Bluetooth Connection.
+	[Checkpoint] Connected to vhost 'ece4564val' on RMQ server at '192.168.1.14' as user 'user'
+	[Checkpoint] Consuming from RMQ queue: 564
+	[Checkpoint] Order Update: Your order has been submitted.
+	[Checkpoint] Order Update: We are processing your order.
+	[Checkpoint] Order Update: We finished processing your order.

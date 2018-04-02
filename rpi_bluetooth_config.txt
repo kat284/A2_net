@@ -1,0 +1,68 @@
+Step 1: Install the following.
+
+	sudo apt-get install libbluetooth-dev
+
+	pip3 install pybluez
+
+Step 2: Backup the original Bluetooth config file.
+
+	sudo cp /lib/systemd/system/bluetooth.service /lib/systemd/system/bluetooth.service.original
+
+Step 3: Modify the "bluetooth.service" config file with your favorite editor.
+
+	sudo nano /lib/systemd/system/bluetooth.service
+
+	append "-C" or "-compat" to "ExecStart=/usr/lib/bluetooth/bluetoothd" so it looks like this:
+		ExecStart=/usr/lib/bluetooth/bluetoothd -C
+
+	add the following to the next line: 
+		ExecStartPost=/usr/bin/sdptool add SP
+
+	add the following to the next line: 
+		ExecStartPost=/bin/chmod 666 /var/run/sdp
+
+Step 4: Reboot the RPi.
+
+Step 5: Use "bluetoothctl" to pair your RPis.
+
+	On the first RPi...
+		
+		bluetoothctl
+
+		discoverable on
+
+	On the second RPi...
+
+		bluetoothctl
+
+		scan on
+
+			Wait until the address of the other Raspberry Pi shows up.
+
+		pair <BT Address of first RPi>
+
+	On both RPis:
+
+		paired-devices
+
+		You should see the other RPi's address in the given list.
+
+	Troubleshooting:
+
+		Try it a few more times until the other RPi ends up in "paired-devices" list.
+
+		If that doesn't work try...
+
+			On first RPi...
+
+				trust <BT Address of second RPi>
+
+			On second RPi...
+
+				trust <BT Address of first RPi>
+
+		Repeat
+
+Step 6: Try RFCOMM example code found at the following link:
+	
+	https://github.com/karulis/pybluez/tree/master/examples/simple
