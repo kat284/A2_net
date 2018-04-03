@@ -13,8 +13,8 @@
 # "led_queue": "ledstatus"}
 
 rmq_params = {"vhost": "/", 
-"username": "username",
-"password": "password",
+"username": "guest",
+"password": "guest",
 "exchange": "exchange",
 "order_queue": "order_queue",
 "led_queue": "led_queue"}
