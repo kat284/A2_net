@@ -12,9 +12,9 @@
 # "order_queue": "orders",
 # "led_queue": "ledstatus"}
 
-rmq_params = {"vhost": "/", 
-"username": "guest",
-"password": "guest",
+rmq_params = {"vhost": "group6", 
+"username": "user",
+"password": "password",
 "exchange": "exchange",
 "order_queue": "order_queue",
 "led_queue": "led_queue"}
