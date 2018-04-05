@@ -10,7 +10,7 @@
 # Output/Created files:     Led Responses
 # Written by:               Team 6
 # Created:                  04/02/2018
-# Last modified:            04/02/2018
+# Last modified:            04/03/2018
 # Version:                  1.0.0
 # Example usage:            python3 led.py -s <RMQ IP OR HOSTNAME>
 #                                               -m <GPIO MODE>
@@ -93,7 +93,8 @@ def callback(ch,method,properties,body):
       GPIO.output(RED_PIN,GPIO.LOW)
       GPIO.output(GREEN_PIN,GPIO.HIGH)
       GPIO.output(BLUE_PIN,GPIO.LOW)
-   print("[Checkpoint] Flashing LED to ",body)
+   print("[Checkpoint] Flashing LED to {0}".format(body))
+   
  
 #~~[Functions]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #      .--.      .'-.      .--.      .--.      .--.      .-'.      .--. #
@@ -120,21 +121,21 @@ if __name__ == '__main__':
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
    except:
-        print("[ERROR] Unable to connect to vhost: ",rmq_params.get("vhost")," on RMQ server at ", RMQ_IP," as user ",rmq_params.get("username"))
+        print("[ERROR] Unable to connect to vhost '{0}' on RMQ server at '{1}' as user '{2}'".format(rmq_params.get("vhost"),RMQ_IP, rmq_params.get("username")))
         print("[ERROR] Verify that vhost is up, credentials are correct or the vhost name is correct!")
         print("[ERROR] Connection closing")
         if connection:
             connection.close()
         GPIO.cleanup() 
         exit(1)
-   print("[Checkpoint] Connected to vhost ",rmq_params.get("vhost") ," on RMQ server at ", RMQ_IP," as user ",rmq_params.get("username")) 
+   print("[Checkpoint] Connected to vhost '{0}' on RMQ server at '{1}' as user '{2}'".format(rmq_params.get("vhost"),RMQ_IP, rmq_params.get("username")))
    try:
        channel.queue_bind(exchange=rmq_params.get("exchange"),queue=rmq_params.get("led_queue"),routing_key=rmq_params.get("led_queue")) 
        channel.basic_consume(callback,queue=rmq_params.get("led_queue"),no_ack=True) 
-       print("[Checkpoint] Consuming from RMQ queue: ",rmq_params.get("led_queue")) 
+       print("[Checkpoint] Consuming from RMQ queue: {0}".format(rmq_params.get("led_queue"))) 
        channel.start_consuming() 
    except:
-       print("[ERROR] The queue, ",rmq_params.get("led_queue"),", was not found or the led.py process was killed")
+       print("[ERROR] The queue ({0}) was not found or the led.py process was killed".format(rmq_params.get("led_queue")))
        print("[ERROR] Verify that the queue is up! You may have to restart the server")
        print("[ERROR] Connection closing")
        connection.close()
